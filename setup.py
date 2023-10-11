@@ -21,8 +21,10 @@ setup(
     author="Miguel Escobar Varela",
     install_requires=required,
     classifiers=[
-        "Development Status :: 2 - Pre-Alpha",
+        "Development Status :: 5 - Production/Stable",
+        "Intended Audience :: Developers",
         "Intended Audience :: Education",
+        "Intended Audience :: Science/Research",
         "License :: OSI Approved :: MIT License",
         "Programming Language :: Python :: 3.10",
         "Topic :: Software Development :: Libraries :: Python Modules",
