@@ -31,9 +31,9 @@ def compare_raters(directory,includes_index=True):
         print(f"Processing {fileitem}...")
         temp_df = pd.read_excel(fileitem, index_col=0)
         if includes_index:
-            temp_df = pd.read_excel(fileitem)
-        else:
             temp_df = pd.read_excel(fileitem, index_col=0)
+        else:
+            temp_df = pd.read_excel(fileitem)
 
         #each file must have columns with "label" and "sentence"
         if sorted(temp_df.columns)!= ["label","sentence"]:
