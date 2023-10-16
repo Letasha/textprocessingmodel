@@ -11,7 +11,7 @@ from sklearn.preprocessing import LabelEncoder
 
 analyzer = create_analyzer(task="sentiment", lang="en")
 
-def compare_raters(directory):
+def compare_raters(directory,includes_index=True):
     """
     Combines and compares at least three xlsx files that have a 'sentence'
     column and a 'label' column. The values of the lable column must only be
@@ -30,8 +30,10 @@ def compare_raters(directory):
     for number,fileitem in enumerate(files,1):
         print(f"Processing {fileitem}...")
         temp_df = pd.read_excel(fileitem, index_col=0)
-        #if temp_df.index = "sentence":
-        #    temp_df.reset_index()
+        if includes_index:
+            temp_df = pd.read_excel(fileitem)
+        else:
+            temp_df = pd.read_excel(fileitem, index_col=0)
 
         #each file must have columns with "label" and "sentence"
         if sorted(temp_df.columns)!= ["label","sentence"]:
