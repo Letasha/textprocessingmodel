@@ -10,7 +10,7 @@ required = [
     "statsmodels",
     "seaborn",
     "matplotlib",
-    "sklearn"
+    "scikit-learn"
 ]
 
 setup(
