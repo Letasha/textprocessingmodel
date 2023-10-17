@@ -32,6 +32,7 @@ def compare_raters(directory,includes_index=True):
         temp_df = pd.read_excel(fileitem, index_col=0)
         if includes_index:
             temp_df = pd.read_excel(fileitem, index_col=0)
+            temp_df.reset_index(drop=True,inplace=True)
         else:
             temp_df = pd.read_excel(fileitem)
 
