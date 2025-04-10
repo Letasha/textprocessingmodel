@@ -97,12 +97,10 @@ def compare_raters(directory,includes_index=True):
     values = df[rater_names].values
     
     # Then we aggregate them in the format required by statsmodels and then calculate Kappa
-    le = LabelEncoder()
-    encoded_matrix = np.apply_along_axis(le.fit_transform, 0, values)
+    encoded_matrix = np.array([LabelEncoder().fit_transform(col) for col in values.T]).T
     agg = irr.aggregate_raters(encoded_matrix)
     kappa = irr.fleiss_kappa(agg[0])
     print(f"Fliess Kappa is {kappa}")
-    return None
 
 class Analyzer:
     """
