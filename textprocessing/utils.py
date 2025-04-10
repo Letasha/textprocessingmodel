@@ -33,7 +33,6 @@ def compare_raters(directory,includes_index=True):
     
     for number,fileitem in enumerate(files,1):
         print(f"Processing {fileitem}...")
-        temp_df = pd.read_excel(fileitem, index_col=0)
         if includes_index:
             temp_df = pd.read_excel(fileitem, index_col=0)
             temp_df.reset_index(drop=True,inplace=True)
@@ -95,6 +94,10 @@ def compare_raters(directory,includes_index=True):
 
     # To calculate Fleiss' Kappa, first we get the values from the labelers as an array
     values = df[rater_names].values
+
+    print("Rater names:", rater_names)
+    print("Final df columns:", df.columns.tolist())
+    print("Types in rater columns:", df[rater_names].dtypes)
     
     # Then we aggregate them in the format required by statsmodels and then calculate Kappa
     encoded_matrix = np.array([LabelEncoder().fit_transform(col) for col in values.T]).T
