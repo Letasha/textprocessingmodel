@@ -27,6 +27,9 @@ def compare_raters(directory,includes_index=True):
         print("ERROR: There must be at least three files in the directory.")
         return None
     
+    # List to keep track of the rater (label) column names
+    rater_names = []
+    
     for number,fileitem in enumerate(files,1):
         print(f"Processing {fileitem}...")
         temp_df = pd.read_excel(fileitem, index_col=0)
@@ -41,12 +44,17 @@ def compare_raters(directory,includes_index=True):
         if not required.issubset(temp_df.columns):
             print(f"ERROR in {fileitem}: Columns must include 'label' and 'sentence', exactly as named (lowercase).")
             return None
+        
+        # Limit to only the required columns.
+        # This ensures extra columns in the xlsx file are not carried forward.
+        temp_df = temp_df[['sentence', 'label']]
 
-        #values should only be pos, neg and neu
+        # Check that the 'label' column has only the allowed values
         if sorted(temp_df['label'].unique()) != ["neg","neu","pos"]:
             print(f"ERROR in {fileitem}: The 'label' column can only contain the values 'neg','neu'','pos' in smal caps.")
             return None
-
+        
+        # Define a unique name for the rater (using file name) and rename the label column
         if ("/") in fileitem:
             labeler_name = fileitem.split("/")[-1].replace(".xlsx","")
         elif ("\\") in fileitem:
@@ -55,35 +63,39 @@ def compare_raters(directory,includes_index=True):
             labeler_name = fileitem
 
         temp_df.rename(columns={'label': labeler_name}, inplace=True)
+        rater_names.append(labeler_name)
+
+        # For the first file, keep the 'sentence' column; for subsequent files, drop it
         if number == 1:
             df = temp_df
         else:
             temp_df = temp_df.drop('sentence', axis=1)
             df = pd.concat([df, temp_df], axis=1)      
     
-    #for each line, find most common label
+    # For each row, compute the most common label using only the rater label columns
     no_agreement = 0
-    for k,v in df.iterrows():
-        most_common = Counter(v[1:]).most_common(1)
+    for k, v in df.iterrows():
+        label_values = v[rater_names]  # only extract the rater's labels
+        most_common = Counter(label_values).most_common(1)
         if most_common[0][1] > 1:
-            df.loc[k,"ground truth"] = Counter(v[1:]).most_common(1)[0][0]
+            df.loc[k, "ground truth"] = most_common[0][0]
         else:
-            df.loc[k,"ground truth"] = "No agreement!"
-            no_agreement+=1 
+            df.loc[k, "ground truth"] = "No agreement!"
+            no_agreement += 1
     
     if no_agreement > 0:
         print(f"No agreement was found for {no_agreement} observations. Please change this before calling the sentiment_analysis() fucntion.")
 
-    #create output dir, and save the agreement file
+    # Create output dir, and save the agreement file
     if not os.path.isdir(f"{directory}_output"): 
         os.mkdir(f"{directory}_output")
     df.to_excel(f"{directory}_output/agreement.xlsx")
     print(f"\nAgreement file saved at {directory}_output/agreement.xlsx")
 
-    #to calculate Fleiss' Kappa, first we get the values from the labelers as an array
-    values = df.iloc[:,1:-1].values
+    # To calculate Fleiss' Kappa, first we get the values from the labelers as an array
+    values = df[rater_names].values
     
-    #then we aggregate them in the format required by statsmodels and then calculate Kappa
+    # Then we aggregate them in the format required by statsmodels and then calculate Kappa
     agg = irr.aggregate_raters(values)
     kappa = irr.fleiss_kappa(agg[0])
     print(f"Fliess Kappa is {kappa}")
