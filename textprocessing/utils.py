@@ -36,9 +36,10 @@ def compare_raters(directory,includes_index=True):
         else:
             temp_df = pd.read_excel(fileitem)
 
-        #each file must have columns with "label" and "sentence"
-        if sorted(temp_df.columns)!= ["label","sentence"]:
-            print(f"ERROR in {fileitem}: The columns must be named 'label' and 'sentence', in small caps.")
+        # Check that 'label' and 'sentence' columns are present (allowing extra columns)
+        required = {"label", "sentence"}
+        if not required.issubset(temp_df.columns):
+            print(f"ERROR in {fileitem}: Columns must include 'label' and 'sentence', exactly as named (lowercase).")
             return None
 
         #values should only be pos, neg and neu
