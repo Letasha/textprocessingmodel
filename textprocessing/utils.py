@@ -8,6 +8,7 @@ import seaborn as sns
 import matplotlib.pyplot as plt
 from sklearn.metrics import confusion_matrix
 from sklearn.preprocessing import LabelEncoder
+import numpy as np
 
 analyzer = create_analyzer(task="sentiment", lang="en")
 
@@ -96,7 +97,9 @@ def compare_raters(directory,includes_index=True):
     values = df[rater_names].values
     
     # Then we aggregate them in the format required by statsmodels and then calculate Kappa
-    agg = irr.aggregate_raters(values)
+    le = LabelEncoder()
+    encoded_matrix = np.apply_along_axis(le.fit_transform, 0, values)
+    agg = irr.aggregate_raters(encoded_matrix)
     kappa = irr.fleiss_kappa(agg[0])
     print(f"Fliess Kappa is {kappa}")
     return None
